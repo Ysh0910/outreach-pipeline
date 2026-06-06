@@ -85,3 +85,19 @@ export async function searchLookalikeDomains(seedDomain, size = 50) {
     return [];
   }
 }
+
+// --- Quick test: run `node stages/ocean.js` to execute this block ---
+const isMain = process.argv[1].endsWith('ocean.js');
+if (isMain) {
+  const testDomain = process.argv[2] || 'salesforce.com';
+  console.log(`[Ocean] Testing with seed domain: "${testDomain}"`);
+
+  const domains = await searchLookalikeDomains(testDomain, 10);
+
+  if (domains.length > 0) {
+    console.log('[Ocean] Sample results:');
+    domains.forEach((d, i) => console.log(`  ${i + 1}. ${d}`));
+  } else {
+    console.log('[Ocean] No domains returned — check your API key and seed domain.');
+  }
+}
