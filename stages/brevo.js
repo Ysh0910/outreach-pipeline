@@ -19,26 +19,29 @@ function firstName(fullName) {
  * @param {string} senderName
  * @returns {{ subject: string, htmlContent: string, textContent: string }}
  */
-function buildEmail(contact, senderName) {
+function buildEmail(contact, senderName, senderEmail) {
   const { name, title, company } = contact;
   const greeting = firstName(name);
 
-  const subject = `Quick question, ${greeting}`;
+  const subject = `Quick question about ${company}`;
 
   const textContent = `Hi ${greeting},
 
-I've been looking into ${company} and your work as ${title} stood out.
+${company} is doing interesting work — noticed you're ${title} there.
 
-Would you be open to a 15-minute call sometime this week? I'd love to hear how things are going on your end — no pitch, just a conversation.
+I'm building automated outreach tooling that helps teams find and reach decision makers without manual effort. Thought it might be worth a quick conversation.
 
-Thanks,
-${senderName}`;
+Open for 15 minutes this week?
+
+Yashwanth
+${senderEmail}`;
 
   const htmlContent = `<html><body>
 <p>Hi ${greeting},</p>
-<p>I've been looking into ${company} and your work as ${title} stood out.</p>
-<p>Would you be open to a 15-minute call sometime this week? I'd love to hear how things are going on your end — no pitch, just a conversation.</p>
-<p>Thanks,<br>${senderName}</p>
+<p>${company} is doing interesting work — noticed you're ${title} there.</p>
+<p>I'm building automated outreach tooling that helps teams find and reach decision makers without manual effort. Thought it might be worth a quick conversation.</p>
+<p>Open for 15 minutes this week?</p>
+<p>Yashwanth<br>${senderEmail}</p>
 </body></html>`;
 
   return { subject, htmlContent, textContent };
@@ -52,7 +55,7 @@ ${senderName}`;
  * @returns {Promise<{ messageId: string }>}
  */
 async function sendOneEmail(apiKey, sender, contact) {
-  const { subject, htmlContent, textContent } = buildEmail(contact, sender.name);
+  const { subject, htmlContent, textContent } = buildEmail(contact, sender.name, sender.email);
 
   const response = await fetch(BREVO_API_URL, {
     method: 'POST',
