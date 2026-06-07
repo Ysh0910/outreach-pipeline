@@ -110,10 +110,15 @@ export async function resolveEmails(prospects) {
       resolved.push({ ...prospect, email });
 
     } catch (err) {
-      // 401/402 are fatal for all calls — abort early
-      if (err.message.includes('Unauthorized') || err.message.includes('Insufficient balance')) {
+      // Insufficient balance — stop and return what we have so far
+      if (err.message.includes('Insufficient balance')) {
+        console.error('[Eazyreach] Credits exhausted, stopping email resolution');
+        return resolved;
+      }
+      // Auth failure — no point continuing
+      if (err.message.includes('Unauthorized')) {
         console.error(`[Eazyreach] Fatal error: ${err.message}`);
-        break;
+        return resolved;
       }
       console.error(`[Eazyreach] Failed for ${name}: ${err.message} — skipping`);
     }
