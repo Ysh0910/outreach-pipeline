@@ -40,10 +40,18 @@ async function resolveEmail(authToken, linkedinUrl) {
     const body = await response.json().catch(() => ({}));
     const message = body.message ?? response.statusText ?? 'Unknown error';
 
+    // Their API returns 401 for both auth failures AND insufficient balance
+    // Distinguish by checking the message content
+    if (response.status === 401) {
+      if (message.toLowerCase().includes('insufficient balance') || message.toLowerCase().includes('balance')) {
+        throw new Error('Insufficient balance — top up your Eazyreach API wallet (separate from studio credits)');
+      }
+      throw new Error('Unauthorized — check your EAZYREACH_API_KEY');
+    }
+
     switch (response.status) {
       case 400: throw new Error(`Invalid LinkedIn URL: ${message}`);
-      case 401: throw new Error('Unauthorized — check your EAZYREACH_API_KEY');
-      case 402: throw new Error('Insufficient balance — top up your Eazyreach wallet');
+      case 402: throw new Error('Insufficient balance — top up your Eazyreach API wallet');
       case 404: throw new Error('LinkedIn profile not found');
       default:  throw new Error(`HTTP ${response.status}: ${message}`);
     }
@@ -51,11 +59,12 @@ async function resolveEmail(authToken, linkedinUrl) {
 
   const data = await response.json();
 
-  if (data.status !== 'success') {
-    throw new Error(`Unexpected status: ${data.status}`);
-  }
+  // Response is { emails: ["email@domain.com", ...] } — flat string array
+  // (docs say objects with verification field but actual API returns strings)
+  const emails = data.emails ?? [];
+  if (!emails.length) return null;
 
-  return pickBestEmail(data.emails);
+  return emails[0]; // first email is the best match
 }
 
 /**
@@ -139,16 +148,16 @@ async function checkAuth() {
 
     const data = await res.json();
 
-    if (res.status === 401) {
+    // Their balance endpoint returns 401 status even on success (API bug)
+    // Check for actual auth failure by looking at the message content
+    if (data.message === 'Invalid authorization token.') {
       console.error('[Eazyreach] ✗ Auth failed — API key is invalid or expired');
       return;
     }
 
-    if (data.status === 'success') {
-      console.log(`[Eazyreach] ✓ Auth OK — Wallet balance: ${data.balance}`);
-    } else {
-      console.error('[Eazyreach] ✗ Unexpected response:', data);
-    }
+    // amount field present means we got a real response
+    const balance = data.amount ?? data.balance ?? 0;
+    console.log(`[Eazyreach] ✓ Auth OK — Wallet balance: ${balance}`);
   } catch (err) {
     console.error(`[Eazyreach] ✗ Network error: ${err.message}`);
   }
