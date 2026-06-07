@@ -19,7 +19,7 @@ function firstName(fullName) {
  * @param {string} senderName
  * @returns {{ subject: string, htmlContent: string, textContent: string }}
  */
-function buildEmail(contact, senderName, senderEmail) {
+function buildEmail(contact, senderEmail) {
   const { name, title, company } = contact;
   const greeting = firstName(name);
 
@@ -55,7 +55,7 @@ ${senderEmail}`;
  * @returns {Promise<{ messageId: string }>}
  */
 async function sendOneEmail(apiKey, sender, contact) {
-  const { subject, htmlContent, textContent } = buildEmail(contact, sender.name, sender.email);
+  const { subject, htmlContent, textContent } = buildEmail(contact, sender.email);
 
   const response = await fetch(BREVO_API_URL, {
     method: 'POST',
