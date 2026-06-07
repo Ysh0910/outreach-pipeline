@@ -1,6 +1,7 @@
 # Outreach Pipeline
 
 A CLI-based automated cold outreach pipeline. Give it a seed company domain — it finds lookalike companies, pulls decision makers, resolves their work emails, and sends personalized cold emails. All in one command.
+Built as a take-home assignment for Vocallabs/Subspace SDE Intern role.
 
 ```
 node index.js stripe.com
