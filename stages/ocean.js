@@ -75,6 +75,10 @@ export async function searchLookalikeDomains(seedDomain, size = 50) {
 
     console.log(`[Ocean] Found ${domains.length} lookalike domains for "${seedDomain}" (total available: ${data.total ?? '?'})`);
 
+    if (domains.length < 3) {
+      console.warn(`[Ocean] Warning: only ${domains.length} domain(s) returned — continuing with what's available`);
+    }
+
     if (data.missingDomains && Object.keys(data.missingDomains).length > 0) {
       console.warn(`[Ocean] Seed domain issues:`, data.missingDomains);
     }

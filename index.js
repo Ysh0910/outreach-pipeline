@@ -114,7 +114,7 @@ console.log(`[Stage 3/4] Resolving emails for ${prospects.length} prospects...`)
 const contacts = await resolveEmails(prospects);
 
 if (!contacts.length) {
-  console.error('[Stage 3/4] No emails resolved. Exiting.');
+  console.error('[Stage 3/4] No emails could be resolved. Exiting.');
   process.exit(1);
 }
 

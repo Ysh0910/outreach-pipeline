@@ -112,7 +112,7 @@ export async function resolveEmails(prospects) {
     } catch (err) {
       // Insufficient balance — stop and return what we have so far
       if (err.message.includes('Insufficient balance')) {
-        console.error('[Eazyreach] Credits exhausted, stopping email resolution');
+        console.warn(`[Eazyreach] Credits exhausted — resolved ${resolved.length}/${prospects.length} emails`);
         return resolved;
       }
       // Auth failure — no point continuing
